@@ -41,7 +41,6 @@ const appMarkup = (currentUser) => `
 app.addEventListener("click", (e) => {
   if (e.target.matches("#login-btn")) login();
   if (e.target.matches("#logout-btn")) logout();
-  if (e.target.closest(".delete-btn"));
   if (e.target.closest("#task-list")) taskControls(e.target);
 });
 
@@ -82,7 +81,7 @@ const login = () => {
       tasksRender(currentUser);
     } else {
       taskData[currentUser] = [];
-      localStorage.setItem("taskData", JSON.stringify(taskData));
+      setData();
       render(appMarkup(currentUser));
       tasksRender(currentUser);
     }
@@ -96,12 +95,11 @@ const logout = () => {
 };
 
 // ДОБАВЛЕНИЕ ТАСКИ
-const addTask = (e) => {
-  e.preventDefault();
+const addTask = () => {
   const taskInput = document.querySelector("#task-input");
-  prioritySelect = document.querySelector("#task-priority");
-  taskName = taskInput.value.trim();
-  taskPriority = prioritySelect.value;
+  const prioritySelect = document.querySelector("#task-priority");
+  const taskName = taskInput.value.trim();
+  const taskPriority = prioritySelect.value;
 
   if (taskName) {
     const taskId = Date.now();
@@ -113,7 +111,7 @@ const addTask = (e) => {
     };
 
     taskData[currentUser].unshift(task);
-    localStorage.setItem("taskData", JSON.stringify(taskData));
+    setData();
     taskInput.value = "";
     tasksRender(currentUser);
   } else {
@@ -144,10 +142,10 @@ const taskControls = (el) => {
     const newTitle = prompt("Измените текст задачи:");
     if (newTitle.trim()) {
       task.title = newTitle;
-    } 
+    }
   }
 
-  localStorage.setItem("taskData", JSON.stringify(taskData));
+  setData();
   tasksRender(currentUser);
 };
 
@@ -172,12 +170,16 @@ const getCurrentUser = (user) => {
   return currentUser;
 };
 
+const setData = () => {
+  localStorage.setItem("taskData", JSON.stringify(taskData));
+};
+
 //  РЕНДЕР ТАСКОВ
 const tasksRender = (currentUser) => {
-  let tasks = [...taskData[currentUser]];
+  let tasks = taskData[currentUser];
   const taskList = document.querySelector("#task-list");
+  let tasksMarkup = "";
   taskList.innerHTML = "";
-  console.log(tasks.length);
   if (tasks.length === 0) {
     const noTasksEl = document.createElement("p");
     noTasksEl.className = "text-center font-semibold text-xl animate-bounce";
@@ -187,32 +189,34 @@ const tasksRender = (currentUser) => {
       noTasksEl.classList.remove("animate-bounce");
     }, 1500);
   } else {
-    tasks.forEach((el) => {
-      taskList.insertAdjacentHTML(
-        "beforeend",
-        `
-      <li data-id="${
-        el.id
-      }" class="flex p-3 items-center hover:bg-[#EBEBEB] hover:rounded-xl">
-          <span class="task-title text-ellipsis max-w-2/3 overflow-hidden ${
-            el.taskStatus
-              ? "line-through text-[#A3A3A3]"
-              : priorityColors[el.priority]
-          }"">${el.title}</span>
-          <div class="ml-auto flex items-center gap-1">   
-            <input type="checkbox" class="status-toggle w-[20px] h-[20px] accent-[#6883ba]" ${
-              el.taskStatus ? "checked" : ""
-            }>
-            <button class="rename-btn">
-              <svg class="fill-[#292929] hover:fill-[#525252]" xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24"><path d="M5 19h1.425L16.2 9.225L14.775 7.8L5 17.575zm-1 2q-.425 0-.712-.288T3 20v-2.425q0-.4.15-.763t.425-.637L16.2 3.575q.3-.275.663-.425t.762-.15t.775.15t.65.45L20.425 5q.3.275.437.65T21 6.4q0 .4-.138.763t-.437.662l-12.6 12.6q-.275.275-.638.425t-.762.15zM19 6.4L17.6 5zm-3.525 2.125l-.7-.725L16.2 9.225z"/></svg>
-            </button>
-            <button class="delete-btn">
-              <svg class="fill-[#292929] hover:fill-[#525252]" xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24"><path d="M7 21q-.825 0-1.412-.587T5 19V6q-.425 0-.712-.288T4 5t.288-.712T5 4h4q0-.425.288-.712T10 3h4q.425 0 .713.288T15 4h4q.425 0 .713.288T20 5t-.288.713T19 6v13q0 .825-.587 1.413T17 21zM17 6H7v13h10zM7 6v13zm5 7.9l1.9 1.9q.275.275.7.275t.7-.275t.275-.7t-.275-.7l-1.9-1.9l1.9-1.9q.275-.275.275-.7t-.275-.7t-.7-.275t-.7.275L12 11.1l-1.9-1.9q-.275-.275-.7-.275t-.7.275t-.275.7t.275.7l1.9 1.9l-1.9 1.9q-.275.275-.275.7t.275.7t.7.275t.7-.275z"/></svg>
-            </button>
-          </div>
+    const tasksMarkup = tasks.map(
+      (el) => `
+      <li data-id="${el.id}" 
+          class="flex p-3 items-center hover:bg-[#EBEBEB] hover:rounded-xl">
+          
+        <span class="task-title text-ellipsis max-w-2/3 overflow-hidden ${
+          el.taskStatus
+            ? "line-through text-[#A3A3A3]"
+            : priorityColors[el.priority]
+        }">
+          ${el.title}
+        </span>
+
+        <div class="ml-auto flex items-center gap-1">
+          <input type="checkbox" class="status-toggle w-[20px] h-[20px] accent-[#6883ba]"
+            ${el.taskStatus ? "checked" : ""}>
+          
+          <button class="rename-btn">
+            <svg class="fill-[#292929] hover:fill-[#525252]" xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24"><path d="M5 19h1.425L16.2 9.225L14.775 7.8L5 17.575zm-1 2q-.425 0-.712-.288T3 20v-2.425q0-.4.15-.763t.425-.637L16.2 3.575q.3-.275.663-.425t.762-.15t.775.15t.65.45L20.425 5q.3.275.437.65T21 6.4q0 .4-.138.763t-.437.662l-12.6 12.6q-.275.275-.638.425t-.762.15zM19 6.4L17.6 5zm-3.525 2.125l-.7-.725L16.2 9.225z"/></svg>
+          </button>
+
+          <button class="delete-btn">
+            <svg class="fill-[#292929] hover:fill-[#525252]" xmlns="http://www.w3.org/2000/svg" width="25" height="25" viewBox="0 0 24 24"><path d="M7 21q-.825 0-1.412-.587T5 19V6q-.425 0-.712-.288T4 5t.288-.712T5 4h4q0-.425.288-.712T10 3h4q.425 0 .713.288T15 4h4q.425 0 .713.288T20 5t-.288.713T19 6v13q0 .825-.587 1.413T17 21zM17 6H7v13h10zM7 6v13zm5 7.9l1.9 1.9q.275.275.7.275t.7-.275t.275-.7t-.275-.7l-1.9-1.9l1.9-1.9q.275-.275.275-.7t-.275-.7t-.7-.275t-.7.275L12 11.1l-1.9-1.9q-.275-.275-.7-.275t-.7.275t-.275.7t.275.7l1.9 1.9l-1.9 1.9q-.275.275-.275.7t.275.7t.7.275t.7-.275z"/></svg>
+          </button>
+        </div>
       </li>
     `
-      );
-    });
+    );
+    taskList.insertAdjacentHTML("beforeend", tasksMarkup.join(""));
   }
 };
