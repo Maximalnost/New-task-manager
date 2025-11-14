@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.5" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Document</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -13,7 +13,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <style>
       @keyframes shake {
-        0%,
+        пще 0%,
         100% {
           transform: translateX(0);
         }
@@ -36,8 +36,16 @@
         animation: shake 0.5s ease-in-out;
       }
 
-      #app {
-        zoom: 1.5;
+      @media screen and (min-width: 1024px) {
+        body {
+          zoom: 1.5;
+        }
+      }
+
+      @media screen and (max-width: 1023px) {
+        body {
+          zoom: 1;
+        }
       }
     </style>
   </head>
